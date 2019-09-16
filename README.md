@@ -1,6 +1,6 @@
 # feathers-authentication-management-v4
 
-This repo is fork a from TheSinding/feathers-authentication-management#update-to-v4.
+This repo is fork a from [TheSinding](https://github.com/TheSinding/feathers-authentication-management)
 
 Compatible with [Feathers v4 Crow](https://docs.feathersjs.com/guides/migrating.html#manual-upgrade)
 
