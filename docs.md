@@ -1,4 +1,4 @@
-# feathers-authentication-management
+# feathers-authentication-management-v4
 
 Sign up verification, forgotten password reset, and other capabilities for local authentication.
 
@@ -23,7 +23,7 @@ Some may prefer to get password resets via long tokens sent by email;
 others may prefer short numeric tokens sent by SMS or wechat.
 
 `feathers-authentication` and `feathers-authentication-management`
-provide much of the infrastructure necessary to implement such a scenario. 
+provide much of the infrastructure necessary to implement such a scenario.
 
 ### Capabilities:
 
@@ -47,12 +47,12 @@ provide much of the infrastructure necessary to implement such a scenario.
 - Successful password reset for a forgotten password.
 - Manual change of a password.
 - Change of identity.
-Notify both the current and new e.g. old email addr may be notified when the email addr changes.
+  Notify both the current and new e.g. old email addr may be notified when the email addr changes.
 
 ### May be used with
 
 - `feathers-client` service calls over websockets or HTTP.
-- Client side wrappers for `feathers-client` service calls. 
+- Client side wrappers for `feathers-client` service calls.
 - HTTP POST calls.
 - React's Redux.
 - Vue (docs to do)
@@ -79,15 +79,16 @@ The server does not handle any interactions with the user.
 Leaving it a pure API server, lets it be used with both native and browser clients.
 
 ## Contents
+
 - [The Service](#service)
 - [Client](#client)
-    - [Using Feathers' method calls](#using-feathers-method-calls)
-    - [Provided service wrappers](#provided-service-wrappers)
-    - [HTTP fetch](#http-fetch)
-    - [React's redux](#react-redux)
-        - [Dispatching services](#dispatching-services)
-        - [Dispatching authentication](#dispatching-authentication)
-    - [Vue 2.0 (docs to do)](#vue)
+  - [Using Feathers' method calls](#using-feathers-method-calls)
+  - [Provided service wrappers](#provided-service-wrappers)
+  - [HTTP fetch](#http-fetch)
+  - [React's redux](#react-redux)
+    - [Dispatching services](#dispatching-services)
+    - [Dispatching authentication](#dispatching-authentication)
+  - [Vue 2.0 (docs to do)](#vue)
 - [Hooks](#hooks)
 - [Multiple services](#multiple-services)
 - [Database](#database)
@@ -100,73 +101,79 @@ Leaving it a pure API server, lets it be used with both native and browser clien
 
 ```javascript
 import authManagement from 'feathers-authentication-management';
-app.configure(authentication)
+app
+  .configure(authentication)
   .configure(authManagement({ options }))
   .configure(user);
 ```
 
 `options` are:
+
 - service: The path of the service for user items, e.g. `/users` (default) or `/organization`.
 - path: The path to associate with this service. Default `authManagement`.
- See [Multiple services](#multiple-services) for more information.
+  See [Multiple services](#multiple-services) for more information.
 - notifier: `function(type, user, notifierOptions)` returns a Promise.
-   - type: type of notification
-     - 'resendVerifySignup'    From resendVerifySignup API call
-     - 'verifySignup'          From verifySignupLong and verifySignupShort API calls
-     - 'sendResetPwd'          From sendResetPwd API call
-     - 'resetPwd'              From resetPwdLong and resetPwdShort API calls
-     - 'passwordChange'        From passwordChange API call
-     - 'identityChange'        From identityChange API call
-   - user: user's item, minus password.
-   - notifierOptions: notifierOptions option from resendVerifySignup and sendResetPwd API calls
+  - type: type of notification
+    - 'resendVerifySignup' From resendVerifySignup API call
+    - 'verifySignup' From verifySignupLong and verifySignupShort API calls
+    - 'sendResetPwd' From sendResetPwd API call
+    - 'resetPwd' From resetPwdLong and resetPwdShort API calls
+    - 'passwordChange' From passwordChange API call
+    - 'identityChange' From identityChange API call
+  - user: user's item, minus password.
+  - notifierOptions: notifierOptions option from resendVerifySignup and sendResetPwd API calls
 - longTokenLen: Half the length of the long token. Default is 15, giving 30-char tokens.
 - shortTokenLen: Length of short token. Default is 6.
 - shortTokenDigits: Short token is digits if true, else alphanumeric. Default is true.
 - delay: Duration for sign up email verification token in ms. Default is 5 days.
 - resetDelay: Duration for password reset token in ms. Default is 2 hours.
 - identifyUserProps: Prop names in `user` item which uniquely identify the user,
-e.g. `['username', 'email', 'cellphone']`.
-The default is `['email']`.
-The prop values must be strings.
-Only these props may be changed with verification by the service.
-At least one of these props must be provided whenever a short token is used,
-as the short token alone is too susceptible to brute force attack. 
+  e.g. `['username', 'email', 'cellphone']`.
+  The default is `['email']`.
+  The prop values must be strings.
+  Only these props may be changed with verification by the service.
+  At least one of these props must be provided whenever a short token is used,
+  as the short token alone is too susceptible to brute force attack.
 
 The service creates and maintains the following properties in the `user` item:
 
-- isVerified:       If the user's email addr has been verified (boolean)
-- verifyToken:      The 30-char token generated for email addr verification (string)
+- isVerified: If the user's email addr has been verified (boolean)
+- verifyToken: The 30-char token generated for email addr verification (string)
 - verifyShortToken: The 6-digit token generated for cellphone addr verification (string)
-- verifyExpires:    When the email addr token expire (Date)
-- verifyChanges     New values to apply on verification to some identifyUserProps (string array)
-- resetToken:       The 30-char token generated for forgotten password reset (string)
-- resetShortToken:  The 6-digit token generated for forgotten password reset (string)
-- resetExpires:     When the forgotten password token expire (Date)
+- verifyExpires: When the email addr token expire (Date)
+- verifyChanges New values to apply on verification to some identifyUserProps (string array)
+- resetToken: The 30-char token generated for forgotten password reset (string)
+- resetShortToken: The 6-digit token generated for forgotten password reset (string)
+- resetExpires: When the forgotten password token expire (Date)
 
 The following `user` item might also contain the following props:
 
-- preferredComm     The preferred way to notify the user. One of identifyUserProps.
+- preferredComm The preferred way to notify the user. One of identifyUserProps.
 
 The `users` service is expected to be already configured.
 Its `patch` method is used to update the password when needed,
 and this module hashes the password before it is passed to `patch`,
-therefore `patch` may *not* have a `auth.hashPassword()` hook.
+therefore `patch` may _not_ have a `auth.hashPassword()` hook.
 
 The user must be signed in before being allowed to change their password or communication values.
 The service, for feathers-authenticate v1.x, requires hooks similar to:
-```javascript
-    const isAction = (...args) => hook => args.includes(hook.data.action);
-    app.service('authManagement').before({
-      create: [
-        hooks.iff(isAction('passwordChange', 'identityChange'), auth.hooks.authenticate('jwt')),
-      ],
-    });
-```
 
+```javascript
+const isAction = (...args) => hook => args.includes(hook.data.action);
+app.service('authManagement').before({
+  create: [
+    hooks.iff(
+      isAction('passwordChange', 'identityChange'),
+      auth.hooks.authenticate('jwt')
+    )
+  ]
+});
+```
 
 ## Client
 
 The service may be called on the client using
+
 - [Using Feathers method calls](#using-feathers-method-calls)
 - [Provided service wrappers](#provided-service-wrappers)
 - [HTTP fetch](#http-fetch)
@@ -174,101 +181,117 @@ The service may be called on the client using
 - [Vue 2.0 (docs todo)](#vue)
 
 ### Using Feathers method calls
+
 Method calls return a Promise.
 
 ```javascript
 import authManagementService from 'feathers-authentication-management';
-app.configure(authManagementService(options))
+app.configure(authManagementService(options));
 const authManagement = app.service('authManagement');
 
 // check props are unique in the users items
-authManagement.create({ action: 'checkUnique',
+authManagement.create({
+  action: 'checkUnique',
   value: identifyUser, // e.g. {email, username}. Props with null or undefined are ignored.
   ownId, // excludes your current user from the search
-  meta: { noErrMsg }, // if return an error.message if not unique
-})
+  meta: { noErrMsg } // if return an error.message if not unique
+});
 // ownId allows the "current" item to be ignored when checking if a field value is unique amoung users.
 // noErrMsg determines if the returned error.message contains text. This may simplify your client side validation.
 
 // resend sign up verification notification
-authManagement.create({ action: 'resendVerifySignup',
+authManagement.create({
+  action: 'resendVerifySignup',
   value: identifyUser, // {email}, {token: verifyToken}
-  notifierOptions: {}, // options passed to options.notifier, e.g. {preferredComm: 'cellphone'}
-})
+  notifierOptions: {} // options passed to options.notifier, e.g. {preferredComm: 'cellphone'}
+});
 
 // sign up or identityChange verification with long token
-authManagement.create({ action: 'verifySignupLong',
-  value: verifyToken, // compares to .verifyToken
-})
+authManagement.create({
+  action: 'verifySignupLong',
+  value: verifyToken // compares to .verifyToken
+});
 
 // sign up or identityChange verification with short token
-authManagement.create({ action: 'verifySignupShort',
+authManagement.create({
+  action: 'verifySignupShort',
   value: {
     user, // identify user, e.g. {email: 'a@a.com'}. See options.identifyUserProps.
-    token, // compares to .verifyShortToken
+    token // compares to .verifyShortToken
   }
-})
+});
 
 // send forgotten password notification
-authManagement.create({ action: 'sendResetPwd',
+authManagement.create({
+  action: 'sendResetPwd',
   value: identifyUser, // {email}, {token: verifyToken}
-  notifierOptions, // options passed to options.notifier, e.g. {preferredComm: 'email'}
-})
+  notifierOptions // options passed to options.notifier, e.g. {preferredComm: 'email'}
+});
 
 // forgotten password verification with long token
-authManagement.create({ action: 'resetPwdLong',
+authManagement.create({
+  action: 'resetPwdLong',
   value: {
     token, // compares to .resetToken
-    password, // new password
-  },
-})
+    password // new password
+  }
+});
 
 // forgotten password verification with short token
-authManagement.create({ action: 'resetPwdShort',
+authManagement.create({
+  action: 'resetPwdShort',
   value: {
     user: identifyUser, // identify user, e.g. {email: 'a@a.com'}. See options.identifyUserProps.
     token, // compares to .resetShortToken
-    password, // new password
-  },
-})
+    password // new password
+  }
+});
 
 // change password
-authManagement.create({ action: 'passwordChange',
+authManagement.create({
+  action: 'passwordChange',
   value: {
     user: identifyUser, // identify user, e.g. {email: 'a@a.com'}. See options.identifyUserProps.
     oldPassword, // old password for verification
-    password, // new password
-  },
-})
+    password // new password
+  }
+});
 
 // change communications
-authManagement.create({ action: 'identityChange',
+authManagement.create({
+  action: 'identityChange',
   value: {
     user: identifyUser, // identify user, e.g. {email: 'a@a.com'}. See options.identifyUserProps.
     password, // current password for verification
-    changes, // {email: 'a@a.com'} or {email: 'a@a.com', cellphone: '+1-800-555-1212'}
-  },
-})
+    changes // {email: 'a@a.com'} or {email: 'a@a.com', cellphone: '+1-800-555-1212'}
+  }
+});
 
 // Authenticate user and log on if user is verified.
 var cbCalled = false;
-app.authenticate({ type: 'local', email, password })
-  .then((result) => {
+app
+  .authenticate({ type: 'local', email, password })
+  .then(result => {
     const user = result.data;
     if (!user || !user.isVerified) {
       app.logout();
-      cb(new Error(user ? 'User\'s email is not verified.' : 'No user returned.'));
+      cb(
+        new Error(user ? "User's email is not verified." : 'No user returned.')
+      );
       return;
     }
     cbCalled = true;
     cb(null, user);
   })
-  .catch((err) => {
-    if (!cbCalled) { cb(err); } // ignore throws from .then( cb(null, user) )
+  .catch(err => {
+    if (!cbCalled) {
+      cb(err);
+    } // ignore throws from .then( cb(null, user) )
   });
-````
+```
 
 ### Provided service wrappers
+
 The wrappers return a Promise.
 
 ```javascript
@@ -324,8 +347,8 @@ fetch('/authManagement', {
 You will want to refer to
 [authenticating over HTTP](./local.md).
 
-
 ### React Redux
+
 See `feathers-reduxify-services` for information about state, etc.
 See `feathers-starter-react-redux-login-roles` for a working example.
 
@@ -373,8 +396,8 @@ store.dispatch(signin.authenticate({ type: 'local', email, password }))
 
 ### Vue
 
-
 ## Hooks
+
 The service does not itself handle creation of a new user account nor the sending of the initial
 sign up verification request.
 Instead hooks are provided for you to use with the `users` service `create` method. If you set a service path other than the default of `'authManagement'`, the custom path name must be passed into the hook.
@@ -421,8 +444,7 @@ We have considered until now situations where authentication was based on a user
 credentials as well as user ones.
 
 You can easily configure `feathers-authentication-management` to handle such situations.
-Please refer to `test/multiInstances.test.js`. 
-
+Please refer to `test/multiInstances.test.js`.
 
 ## Database
 
@@ -456,10 +478,9 @@ The server serves the client app on `/socket`:
 
 ```javascript
 // Express-like middleware provided by Feathersjs.
-app.use('/', serveStatic(app.get('public')))
-   .use('/socket', (req, res) => {
-    res.sendFile(path.resolve(__dirname, '..', 'public', 'socket.html')); // serve the client
-  })
+app.use('/', serveStatic(app.get('public'))).use('/socket', (req, res) => {
+  res.sendFile(path.resolve(__dirname, '..', 'public', 'socket.html')); // serve the client
+});
 ```
 
 The client then routes itself based on the URL.
@@ -477,20 +498,22 @@ switch (action) {
     resetPassword(slug);
     break;
   default:
-    // normal app startup
+  // normal app startup
 }
 ```
 
 ## Security
+
 - The user must be identified when the short token is used, making the short token less appealing
-as an attack vector.
+  as an attack vector.
 - The long and short tokens are erased on successful verification and password reset attempts.
-New tokens must be acquired for another attempt.
+  New tokens must be acquired for another attempt.
 - API params are verified to be strings. If the param is an object, the values of its props are
-verified to be strings.
+  verified to be strings.
 - options.identifyUserProps restricts the prop names allowed in param objects.
 - In order to protect sensitive data, you should set a hook that prevent `PATCH` or `PUT` calls on
-authentication-management related properties:
+  authentication-management related properties:
+
 ```javascript
 // in user service hook
 before: {
@@ -522,6 +545,7 @@ before: {
 ```
 
 ## Configurable
+
 The length of the "30-char" token is configurable.
 The length of the "6-digit" token is configurable. It may also be configured as alphanumeric.
 

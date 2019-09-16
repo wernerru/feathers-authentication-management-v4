@@ -1,7 +1,13 @@
-## authentication-local-management
+# feathers-authentication-management-v4
+
+This repo is fork a from TheSinding/feathers-authentication-management#update-to-v4.
+
+Compatible with [Feathers v4 Crow](https://docs.feathersjs.com/guides/migrating.html#manual-upgrade)
+
+I have added 2 more checks. hasWaitedToChangePassword and hasWaitedToVerify to force the user to wait 30 minutes before requesting a new token.
 
 > Adds sign up verification, forgotten password reset, and other capabilities to local
-[`feathersjs/authentication`](https://docs.feathersjs.com/api/authentication/local-management.html).
+> [`feathersjs/authentication`](https://docs.feathersjs.com/api/authentication/local-management.html).
 
 This repo works with async/await or Promises.
 
@@ -23,8 +29,7 @@ Some may prefer to get password resets via long tokens sent by email;
 others may prefer short numeric tokens sent by SMS or wechat.
 
 `feathersjs/authentication` and `feathers-plus/authentication-local-management`
-provide much of the infrastructure necessary to implement such a scenario. 
-
+provide much of the infrastructure necessary to implement such a scenario.
 
 ## Documentation
 
@@ -35,7 +40,6 @@ Read a [step-by-step guide](https://hackernoon.com/setting-up-email-verification
 ## Tests
 
 Run `npm test`
-
 
 ## License
 

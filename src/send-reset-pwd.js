@@ -19,7 +19,7 @@ async function sendResetPwd (options, identifyUser, notifierOptions, field) {
   ensureObjPropsValid(identifyUser, options.identifyUserProps);
 
   const users = await usersService.find({ query: identifyUser });
-  const user1 = getUserData(users, options.skipIsVerifiedCheck ? [] : ['isVerified']);
+  const user1 = getUserData(users, options.skipIsVerifiedCheck ? [] : ['isVerified', 'hasWaitedToChangePassword'];
 
   const user2 = Object.assign(user1, {
     resetExpires: Date.now() + options.resetDelay,
