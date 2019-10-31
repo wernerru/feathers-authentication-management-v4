@@ -18,7 +18,7 @@ function getUserData(data, checks = []) {
     });
   }
 
-  if (checks.includes('hasWaitedToVerify') && !user.isVerified) {
+  if (checks.includes('hasWaitedToVerify') && user.verifyExpires  && !user.isVerified) {
     const verifiedExpires = user.verifyExpires,
       todayDate = new Date();
     const diffTime = Math.abs(
